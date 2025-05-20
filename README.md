@@ -36,6 +36,7 @@ docker compose up -d
 http://localhost:8000/exemplo
 
 Frontend criando a RUM:
+
 ```
     <script src="https://unpkg.com/@elastic/apm-rum@5.4.0/dist/bundles/elastic-apm-rum.umd.min.js" crossorigin></script>
     <script>
@@ -48,7 +49,9 @@ Frontend criando a RUM:
     })
     </script>
 ```sh
-Backend enviando dados para o APM: 
+
+Backend enviando dados para o APM:
+
 ```
 ELASTIC_APM = {
   # Set required service name. Allowed characters:
