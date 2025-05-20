@@ -1,32 +1,32 @@
-Antes de executar o docker-compose up, crie a rede observability com o comando
-
+Antes de executar o docker-compose up, crie a rede observability com o comando:
 ```
 $ docker network create observability
-```sh
-Também é necessário criar a pasta elasticsearch_data no elastic na máquina local manualmente para evitar erro de permissionamento:
+```
 
+Também é necessário criar a pasta elasticsearch_data no elastic na máquina local manualmente para evitar erro de permissionamento:
 ```
 $ mkdir elasticsearch_data
-```sh
+```
 
 Na pasta /beats/metric execute o seguinte comando:
 ```
 $ sudo chown root metricbeat.yml
-```sh
+```
 
 Caso ocorra o erro:
 ```
 bootstrap check failure [1] of [1]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
-```sh
+```
+
 Execute o comando:
 ```
 sysctl -w vm.max_map_count=262144
-```sh
+```
 
 Suba os containers da stack do Elastic:
 ```
 docker compose up -d
-```sh
+```
 
 Kibana: 
 http://localhost:5601
@@ -42,10 +42,12 @@ apm-server.rum.enabled: true
 
 Suba a aplicação: 
 http://localhost:8000
-cd app
+
 ```
+cd app
 docker compose up -d
-```sh
+```
+
 http://localhost:8000/exemplo
 
 Frontend criando a RUM:
@@ -61,7 +63,7 @@ Frontend criando a RUM:
         serverUrl: "http://localhost:8200",
     })
     </script>
-```sh
+```
 
 Backend enviando dados para o APM:
 
@@ -76,4 +78,4 @@ ELASTIC_APM = {
   'DEBUG': True,
   'ENVIRONMENT': 'production',
 }
-```sh
+```
