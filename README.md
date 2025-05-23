@@ -46,9 +46,19 @@ http://localhost:8000
 ```
 cd app
 docker compose up -d
-```
 
-http://localhost:8000/exemplo
+Caso tenha feito alguma alteraçao no projeto execute:
+rm db.sqlite3
+docker-compose up --build
+
+```
+docker-compose exec app python manage.py makemigrations
+docker-compose exec app python manage.py migrate
+docker-compose exec app python manage.py createsuperuser
+
+http://localhost:8000/exemplo 
+http://localhost:8000/admin/ (criar perguntas)
+http://localhost:9001/login?next=/ (gestão do banco)
 
 Frontend criando a RUM:
 
@@ -79,3 +89,4 @@ ELASTIC_APM = {
   'ENVIRONMENT': 'production',
 }
 ```
+

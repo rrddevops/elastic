@@ -19,7 +19,7 @@ services:
       container_name: pgadmin
       tty: true
       environment:
-        - PGADMIN_DEFAULT_EMAIL=admin@fullcycle.com.br
+        - PGADMIN_DEFAULT_EMAIL=admin@teste.com
         - PGADMIN_DEFAULT_PASSWORD=123456
       ports:
         - "9001:80"
@@ -40,7 +40,7 @@ services:
         - observability
     
     nginx:
-      build: ../nginx
+      build: ./nginx
       container_name: nginx
       ports:
         - "8280:80"
