@@ -39,7 +39,11 @@ services:
     user: root
     volumes:      
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./beats/metric/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
+      - ./beats/metric/metricbeat.yml:/tmp/metricbeat.yml
+    command: >
+      sh -c "cp /tmp/metricbeat.yml /usr/share/metricbeat/metricbeat.yml &&
+             chmod go-w /usr/share/metricbeat/metricbeat.yml &&
+             metricbeat -e"
     restart: on-failure
     networks: 
       - observability
@@ -48,7 +52,12 @@ services:
     image: docker.elastic.co/beats/heartbeat:7.13.0
     container_name: heartbeat
     volumes:      
-    - ./beats/heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
+      - ./beats/heartbeat/heartbeat.yml:/tmp/config.yml
+    command: >
+      sh -c "mkdir -p /tmp/config &&
+             cp /tmp/config.yml /tmp/config/heartbeat.yml &&
+             chmod go-w /tmp/config/heartbeat.yml &&
+             heartbeat -e -c /tmp/config/heartbeat.yml"
     environment: 
     - setup.kibana.host=kibana:5601
     networks: 
@@ -57,8 +66,13 @@ services:
   apm:
     image: docker.elastic.co/apm/apm-server-oss:7.13.0
     container_name: apm
-    volumes:      
-    - ./apm/apm-server.yml:/usr/share/apm-server/apm-server.yml
+    volumes:
+      - ./apm/apm-server.yml:/tmp/config.yml
+    command: >
+      sh -c "mkdir -p /tmp/config &&
+             cp /tmp/config.yml /tmp/config/apm-server.yml &&
+             chmod go-w /tmp/config/apm-server.yml &&
+             apm-server -e -c /tmp/config/apm-server.yml"
     ports:
       - "8200:8200"
     restart: on-failure

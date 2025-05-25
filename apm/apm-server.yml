@@ -308,7 +308,7 @@ apm-server:
     # In case you specify an additional path, the scheme is required: `http://localhost:5601/path`.
     # IPv6 addresses should always be defined as: `https://[2001:db8::1]:5601`.
     host: "kibana:5601"
-
+    setup.dashboards.enabled: true
     # Optional protocol and basic auth credentials.
     #protocol: "https"
     #username: "elastic"
