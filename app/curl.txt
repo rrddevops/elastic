@@ -1,0 +1,17 @@
+docker-compose up --build
+docker compose up --build -d
+
+curl -X POST http://localhost:8000/cadastro \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "João da Silva",
+    "email": "joao.silva@example.com",
+    "telefone": "11999999999",
+    "quantidade": 2,
+    "produto": "Notebook",
+    "valor": 3500.00,
+    "endereco": "Rua das Flores, 123",
+    "cep": "01001-000",
+    "cidade": "São Paulo",
+    "estado": "SP"
+  }'

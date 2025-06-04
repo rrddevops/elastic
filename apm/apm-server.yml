@@ -194,6 +194,10 @@ apm-server:
   # token configured for other endpoints.
   rum:
     enabled: true
+    allow_origins: ['*']
+    allow_headers: ["*"]
+    source_mapping:
+      enabled: true
 
     #event_rate:
 
@@ -218,7 +222,7 @@ apm-server:
     # An origin is made of a protocol scheme, host and port, without the url path.
     # Allowed origins in this setting can have * to match anything (eg.: http://*.example.com)
     # If an item in the list is a single '*', everything will be allowed.
-    allow_origins: ['*']
+    #allow_origins: ['*']
 
     # A list of Access-Control-Allow-Headers to allow RUM requests, in addition to "Content-Type",
     # "Content-Encoding", and "Accept"
@@ -303,64 +307,11 @@ apm-server:
   kibana:
     # For APM Agent configuration in Kibana, enabled must be true.
     enabled: true
-
-    # Scheme and port can be left out and will be set to the default (`http` and `5601`).
-    # In case you specify an additional path, the scheme is required: `http://localhost:5601/path`.
-    # IPv6 addresses should always be defined as: `https://[2001:db8::1]:5601`.
     host: "kibana:5601"
     setup.dashboards.enabled: true
-    # Optional protocol and basic auth credentials.
-    #protocol: "https"
-    #username: "elastic"
-    #password: "changeme"
-
-    # Optional HTTP path.
-    #path: ""
-
-    # Enable custom SSL settings. Set to false to ignore custom SSL settings for secure communication.
-    #ssl.enabled: true
-
-    # Optional SSL configuration options. SSL is off by default, change the `protocol` option if you want to enable `https`.
-    #
-    # Control the verification of Kibana certificates. Valid values are:
-    # * full, which verifies that the provided certificate is signed by a trusted
-    # authority (CA) and also verifies that the server's hostname (or IP address)
-    # matches the names identified within the certificate.
-    # * strict, which verifies that the provided certificate is signed by a trusted
-    # authority (CA) and also verifies that the server's hostname (or IP address)
-    # matches the names identified within the certificate. If the Subject Alternative
-    # Name is empty, it returns an error.
-    # * certificate, which verifies that the provided certificate is signed by a
-    # trusted authority (CA), but does not perform any hostname verification.
-    #  * none, which performs no verification of the server's certificate. This
-    # mode disables many of the security benefits of SSL/TLS and should only be used
-    # after very careful consideration. It is primarily intended as a temporary
-    # diagnostic mechanism when attempting to resolve TLS errors; its use in
-    # production environments is strongly discouraged.
-    #ssl.verification_mode: full
-
-    # List of supported/valid TLS versions. By default all TLS versions 1.0 up to
-    # 1.2 are enabled.
-    #ssl.supported_protocols: [TLSv1.0, TLSv1.1, TLSv1.2]
-
-    # List of root certificates for HTTPS server verifications.
-    #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
-
-    # Certificate for SSL client authentication.
-    #ssl.certificate: "/etc/pki/client/cert.pem"
-
-    # Client Certificate Key
-    #ssl.key: "/etc/pki/client/cert.key"
-
-    # Optional passphrase for decrypting the Certificate Key.
-    # It is recommended to use the provided keystore instead of entering the passphrase in plain text.
-    #ssl.key_passphrase: ''
-
-    # Configure cipher suites to be used for SSL connections.
-    #ssl.cipher_suites: []
-
-    # Configure curve types for ECDHE based cipher suites.
-    #ssl.curve_types: []
+    setup.template.settings:
+      index.number_of_shards: 1
+      index.codec: best_compression
 
   #---------------------------- APM Server - ILM Index Lifecycle Management ----------------------------
 
@@ -1107,7 +1058,7 @@ output.elasticsearch:
 
 # Sets the minimum log level. The default log level is info.
 # Available log levels are: error, warning, info, or debug.
-#logging.level: info
+logging.level: info
 
 # Enable debug output for selected components. To enable all selectors use ["*"].
 # Other available selectors are "beat", "publish", or "service".

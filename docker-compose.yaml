@@ -20,7 +20,7 @@ services:
     ports:
       - 9200:9200
     networks: 
-        - observability
+      - observability
    
   kibana:
     image: docker.elastic.co/kibana/kibana:7.13.0
@@ -31,7 +31,35 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
     networks: 
-        - observability
+      - observability
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - observability
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.13.0
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./beats/metric/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/apache2:/var/log/apache2:ro
+    command: filebeat -e -strict.perms=false
+    networks:
+      - observability
 
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:7.13.0
@@ -59,12 +87,12 @@ services:
              chmod go-w /tmp/config/heartbeat.yml &&
              heartbeat -e -c /tmp/config/heartbeat.yml"
     environment: 
-    - setup.kibana.host=kibana:5601
+      - setup.kibana.host=kibana:5601
     networks: 
       - observability
 
   apm:
-    image: docker.elastic.co/apm/apm-server-oss:7.13.0
+    image: docker.elastic.co/apm/apm-server:7.13.0
     container_name: apm
     volumes:
       - ./apm/apm-server.yml:/tmp/config.yml
@@ -81,4 +109,5 @@ services:
 
 networks:
   observability:
-    external: true
+    name: observability
+    driver: bridge

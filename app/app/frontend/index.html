@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro</title>
+  <script src="https://unpkg.com/@elastic/apm-rum@5.12.0/dist/bundles/elastic-apm-rum.umd.min.js"></script>
+  <script>
+    elasticApm.init({
+      serviceName: 'frontend',
+      serverUrl: 'http://localhost:8200',
+      serviceVersion: '1.0.0',
+      environment: 'production'
+    })
+  </script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    label { display: block; margin-top: 1rem; }
+    input { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 1rem; padding: 10px 15px; }
+  </style>
+</head>
+<body>
+  <h1>Cadastro de Pedido</h1>
+  <form id="cadastro-form">
+    <label>Nome: <input type="text" name="nome" required /></label>
+    <label>Email: <input type="email" name="email" required /></label>
+    <label>Telefone: <input type="text" name="telefone" required /></label>
+    <label>Quantidade: <input type="number" name="quantidade" required /></label>
+    <label>Produto: <input type="text" name="produto" required /></label>
+    <label>Valor: <input type="number" step="0.01" name="valor" required /></label>
+    <label>Endereço: <input type="text" name="endereco" required /></label>
+    <label>CEP: <input type="text" name="cep" required /></label>
+    <label>Cidade: <input type="text" name="cidade" required /></label>
+    <label>Estado: <input type="text" name="estado" required /></label>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById('cadastro-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const response = await fetch('http://localhost:8000/cadastro', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert('Cadastro enviado com sucesso!');
+          form.reset();
+        } else {
+          const err = await response.json();
+          alert('Erro ao enviar: ' + err.detail);
+        }
+      } catch (error) {
+        alert('Erro na comunicação com o servidor: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

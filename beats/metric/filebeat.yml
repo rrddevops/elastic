@@ -1,0 +1,37 @@
+filebeat.inputs:
+- type: filestream
+  id: apache-access
+  enabled: true
+  paths:
+    - /var/log/apache2/access.log
+  fields:
+    type: apache-access
+
+- type: filestream
+  id: apache-error
+  enabled: true
+  paths:
+    - /var/log/apache2/error.log
+  fields:
+    type: apache-error
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  indices:
+    - index: "apache-access-%{+yyyy.MM.dd}"
+      when.equals:
+        fields.type: "apache-access"
+    - index: "apache-error-%{+yyyy.MM.dd}"
+      when.equals:
+        fields.type: "apache-error"
+
+setup.kibana:
+  host: "kibana:5601"
+
+setup.template.enabled: true
+setup.template.name: "apache"
+setup.template.pattern: "apache-*"
+setup.template.settings:
+  index.number_of_shards: 1
+
+logging.level: info 

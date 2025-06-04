@@ -1,3 +1,133 @@
+# Sistema de Pedidos com Monitoramento ELK
+
+Este projeto é um sistema distribuído de pedidos com monitoramento completo usando a stack ELK (Elasticsearch, Logstash, Kibana) + APM + Beats, além de Grafana para visualização de métricas.
+
+## Arquitetura
+
+O sistema é composto por:
+
+- Frontend (Apache)
+- API Gateway
+- Microserviços:
+  - Cliente API
+  - Pedido API
+  - Entrega API
+- Stack de Monitoramento:
+  - Elasticsearch
+  - Kibana
+  - APM Server
+  - Filebeat
+  - Metricbeat
+  - Heartbeat
+  - Grafana
+
+## Pré-requisitos
+
+- Docker
+- Docker Compose
+
+## Como Executar
+
+1. Clone o repositório:
+```bash
+git clone <repository-url>
+cd elastic
+```
+
+2. Inicie a stack ELK:
+```bash
+docker-compose up -d
+```
+
+3. Inicie a aplicação:
+```bash
+cd app
+docker-compose up -d
+```
+
+## Endpoints
+
+### Frontend
+- URL: http://localhost:8080
+- Interface web para cadastro de pedidos
+
+### APIs
+- Gateway: http://localhost:8000
+- Cliente API: http://localhost:8001
+- Pedido API: http://localhost:8002
+- Entrega API: http://localhost:8003
+
+### Monitoramento
+- Kibana: http://localhost:5601
+- APM: http://localhost:8200
+- Grafana: http://localhost:3000
+
+## Exemplo de Uso via cURL
+
+Para cadastrar um pedido diretamente via API:
+
+```bash
+curl -X POST http://localhost:8000/cadastro \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "João Silva",
+    "email": "joao@example.com",
+    "telefone": "11999999999",
+    "quantidade": 2,
+    "produto": "Produto Teste",
+    "valor": 99.99,
+    "endereco": "Rua Exemplo, 123",
+    "cep": "12345-678",
+    "cidade": "São Paulo",
+    "estado": "SP"
+  }'
+```
+
+## Monitoramento
+
+### APM (Application Performance Monitoring)
+- Acesse o Kibana (http://localhost:5601)
+- Navegue até "APM" no menu lateral
+- Visualize traces, erros e métricas de todas as APIs
+
+### Logs
+- Os logs de todas as aplicações são coletados pelo Filebeat
+- Visualize no Kibana em "Discover"
+- Use o índice `filebeat-*` para logs do Apache
+- Use o índice `apm-*` para logs das APIs
+
+### Métricas
+- Acesse o Grafana (http://localhost:3000)
+- Credenciais padrão: admin/admin
+- Dashboards disponíveis:
+  - Métricas do Sistema
+  - Performance das APIs
+  - Métricas do Apache
+
+### Heartbeat
+- Monitora a disponibilidade de todos os serviços
+- Visualize no Kibana em "Uptime"
+
+## Estrutura de Diretórios
+
+```
+.
+├── app/
+│   ├── frontend/
+│   ├── gateway/
+│   ├── cliente_api/
+│   ├── pedido_api/
+│   ├── entrega_api/
+│   └── docker-compose.yml
+├── apm/
+├── beats/
+│   ├── metric/
+│   └── heartbeat/
+├── elasticsearch_data/
+├── docker-compose.yaml
+└── README.md
+```
+
 Antes de executar o docker-compose up, crie a rede observability com o comando:
 ```
 $ docker network create observability
@@ -50,43 +180,3 @@ docker compose up -d
 Caso tenha feito alguma alteraçao no projeto execute:
 rm db.sqlite3
 docker-compose up --build
-
-```
-docker-compose exec app python manage.py makemigrations
-docker-compose exec app python manage.py migrate
-docker-compose exec app python manage.py createsuperuser
-
-http://localhost:8000/exemplo 
-http://localhost:8000/admin/ (criar perguntas)
-http://localhost:9001/login?next=/ (gestão do banco)
-
-Frontend criando a RUM:
-
-```
-    <script src="https://unpkg.com/@elastic/apm-rum@5.4.0/dist/bundles/elastic-apm-rum.umd.min.js" crossorigin></script>
-    <script>
-        elasticApm.init({
-        serviceName: "codeprogress-rum",
-        pageLoadTraceId: "{{ apm.trace_id }}",
-        pageLoadSpanId: "{{ apm.span_id }}",
-        pageLoadSampled: {{ apm.is_sampled_js }},
-        serverUrl: "http://localhost:8200",
-    })
-    </script>
-```
-
-Backend enviando dados para o APM:
-
-```
-ELASTIC_APM = {
-  # Set required service name. Allowed characters:
-  # a-z, A-Z, 0-9, -, _, and space
-  'SERVICE_NAME': 'codeprogress',
-
-  # Set custom APM Server URL (default: http://localhost:8200)
-  'SERVER_URL': 'http://apm:8200',
-  'DEBUG': True,
-  'ENVIRONMENT': 'production',
-}
-```
-

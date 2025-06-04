@@ -1,0 +1,42 @@
+services:
+  gateway:
+    build: ./app/gateway
+    ports:
+      - "8000:8000"
+    networks:
+      - observability
+
+  cliente_api:
+    build: ./app/cliente_api
+    ports:
+      - "8001:8000"
+    networks:
+      - observability
+
+  pedido_api:
+    build: ./app/pedido_api
+    ports:
+      - "8002:8000"
+    networks:
+      - observability
+
+  entrega_api:
+    build: ./app/entrega_api
+    ports:
+      - "8003:8000"
+    networks:
+      - observability
+  
+  frontend:
+    build: ./app/frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/log/apache2:/var/log/apache2
+    networks:
+      - observability
+
+networks:
+  observability:
+    external: true
+    name: observability
