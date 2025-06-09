@@ -18,6 +18,11 @@
     label { display: block; margin-top: 1rem; }
     input { width: 100%; padding: 8px; margin-top: 5px; }
     button { margin-top: 1rem; padding: 10px 15px; }
+    .error { color: red; margin-top: 1rem; }
+    .success { color: green; margin-top: 1rem; }
+    #result { margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; display: none; }
+    #result.visible { display: block; }
+    #result pre { white-space: pre-wrap; word-wrap: break-word; }
   </style>
 </head>
 <body>
@@ -36,7 +41,24 @@
     <button type="submit">Enviar</button>
   </form>
 
+  <div id="result"></div>
+
   <script>
+    const resultDiv = document.getElementById('result');
+
+    function showResult(content, isError = false) {
+      resultDiv.innerHTML = '';
+      resultDiv.className = `visible ${isError ? 'error' : 'success'}`;
+      
+      if (typeof content === 'object') {
+        const pre = document.createElement('pre');
+        pre.textContent = JSON.stringify(content, null, 2);
+        resultDiv.appendChild(pre);
+      } else {
+        resultDiv.textContent = content;
+      }
+    }
+
     document.getElementById('cadastro-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const form = e.target;
@@ -51,15 +73,25 @@
           body: JSON.stringify(data)
         });
 
+        const responseData = await response.json();
+
         if (response.ok) {
-          alert('Cadastro enviado com sucesso!');
+          showResult({
+            mensagem: 'Cadastro realizado com sucesso!',
+            dados: responseData
+          });
           form.reset();
         } else {
-          const err = await response.json();
-          alert('Erro ao enviar: ' + err.detail);
+          showResult({
+            erro: 'Erro ao processar cadastro',
+            detalhes: responseData.detail
+          }, true);
         }
       } catch (error) {
-        alert('Erro na comunicação com o servidor: ' + error.message);
+        showResult({
+          erro: 'Erro na comunicação com o servidor',
+          detalhes: error.message
+        }, true);
       }
     });
   </script>

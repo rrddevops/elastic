@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elastic_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - observability
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   gateway:
     build: ./app/gateway
     ports:
@@ -10,6 +28,17 @@ services:
     build: ./app/cliente_api
     ports:
       - "8001:8000"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elastic_db
+      POSTGRES_HOST: postgres
+      DATABASE_URL: postgresql://postgres:postgres@postgres/elastic_db
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - observability
 
@@ -17,6 +46,17 @@ services:
     build: ./app/pedido_api
     ports:
       - "8002:8000"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elastic_db
+      POSTGRES_HOST: postgres
+      DATABASE_URL: postgresql://postgres:postgres@postgres/elastic_db
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - observability
 
@@ -24,6 +64,17 @@ services:
     build: ./app/entrega_api
     ports:
       - "8003:8000"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elastic_db
+      POSTGRES_HOST: postgres
+      DATABASE_URL: postgresql://postgres:postgres@postgres/elastic_db
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - observability
   
@@ -40,3 +91,6 @@ networks:
   observability:
     external: true
     name: observability
+
+volumes:
+  postgres_data:
