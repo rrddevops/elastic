@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+# Configure APM
+export ELASTIC_APM_SERVICE_NAME=pedido-api
+export ELASTIC_APM_SERVER_URL=http://apm:8200
+export ELASTIC_APM_ENVIRONMENT=production
+export ELASTIC_APM_CAPTURE_BODY=all
+export ELASTIC_APM_TRANSACTION_SAMPLE_RATE=1
+export ELASTIC_APM_CAPTURE_HEADERS=true
+export ELASTIC_APM_LOG_LEVEL=debug
+
 echo "Starting initialization script..."
 echo "PostgreSQL Host: $POSTGRES_HOST"
 echo "PostgreSQL Port: 5432"

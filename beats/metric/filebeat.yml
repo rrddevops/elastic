@@ -3,35 +3,80 @@ filebeat.inputs:
   id: apache-access
   enabled: true
   paths:
-    - /var/log/apache2/access.log
+    - /var/lib/docker/containers/*/*-json.log
   fields:
-    type: apache-access
+    type: container-logs
+  fields_under_root: true
+  scan_frequency: 10s
+  json.keys_under_root: true
+  json.add_error_key: true
+  processors:
+    - decode_json_fields:
+        fields: ["message"]
+        target: ""
+        overwrite_keys: true
 
 - type: filestream
   id: apache-error
   enabled: true
   paths:
     - /var/log/apache2/error.log
+    - /var/log/apache2/error_log
+    - /var/log/httpd/error_log
   fields:
     type: apache-error
+  fields_under_root: true
+  scan_frequency: 10s
+
+- type: filestream
+  id: api-logs
+  enabled: true
+  paths:
+    - /usr/share/filebeat/logs/*.log
+  fields:
+    type: api-logs
+  fields_under_root: true
+  scan_frequency: 10s
+  json.keys_under_root: true
+  json.add_error_key: true
+
+- type: docker
+  containers.ids:
+    - '*'
+  processors:
+    - add_docker_metadata: ~
 
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
   indices:
-    - index: "apache-access-%{+yyyy.MM.dd}"
+    - index: "container-logs-%{+yyyy.MM.dd}"
       when.equals:
-        fields.type: "apache-access"
+        fields.type: "container-logs"
     - index: "apache-error-%{+yyyy.MM.dd}"
       when.equals:
         fields.type: "apache-error"
+    - index: "api-logs-%{+yyyy.MM.dd}"
+      when.equals:
+        fields.type: "api-logs"
 
 setup.kibana:
   host: "kibana:5601"
 
 setup.template.enabled: true
-setup.template.name: "apache"
-setup.template.pattern: "apache-*"
+setup.template.pattern: "*"
 setup.template.settings:
   index.number_of_shards: 1
 
-logging.level: info 
+logging.level: debug
+logging.to_files: true
+logging.files:
+  path: /usr/share/filebeat/logs
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~ 

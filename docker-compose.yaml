@@ -56,10 +56,25 @@ services:
       - ./beats/metric/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/log/apache2:/var/log/apache2:ro
-    command: filebeat -e -strict.perms=false
+      - filebeat_data:/usr/share/filebeat/data
+      - ./logs:/usr/share/filebeat/logs:rw
+    command: >
+      bash -c "filebeat -e -strict.perms=false"
+    environment:
+      - ELASTIC_APM_SERVER_URL=http://apm:8200
+      - ELASTIC_APM_SERVICE_NAME=filebeat
+      - ELASTIC_APM_ENVIRONMENT=production
+      - ELASTIC_APM_LOG_LEVEL=debug
     networks:
       - observability
+    depends_on:
+      - elasticsearch
+      - kibana
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:7.13.0
@@ -111,3 +126,6 @@ networks:
   observability:
     name: observability
     driver: bridge
+
+volumes:
+  filebeat_data:
